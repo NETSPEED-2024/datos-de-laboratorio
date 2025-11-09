@@ -20,7 +20,6 @@ textarea,input,select{width:100%;padding:10px;border:1px solid #dcdfe6;border-ra
 footer{padding:12px;text-align:center;font-size:13px;color:#666}
 fieldset{border:1px solid #e3e6ea;border-radius:8px;padding:8px;margin-top:10px}
 legend{font-weight:700}
-@media(max-width:800px){header h1{font-size:16px}.btn{width:48%;margin:6px 1%}}
 </style>
 </head>
 <body>
@@ -28,9 +27,9 @@ legend{font-weight:700}
 
 <div class="container">
 
-<!-- =================== PROCESAR DESDE EXCEL =================== -->
 <div class="card">
-  <h3>📋 Procesar desde Excel (todas las hojas excepto QC-ICP / QC-AA)</h3>
+  <h3>📋 Procesar desde Excel</h3>
+
   <label>Seleccionar plantilla</label>
   <select id="sheetType">
     <option value="203">203</option>
@@ -51,67 +50,44 @@ legend{font-weight:700}
   </div>
 
   <label>Salida generada</label>
-  <div id="salida" class="out">Aquí aparecerá el texto listo para copiar o enviar por WhatsApp.</div>
+  <div id="salida" class="out"></div>
 
   <div>
     <button class="btn" onclick="copiarSalida()">📄 Copiar</button>
     <button class="btn" onclick="abrirWhatsappPrimerRegistro()">💬 WhatsApp</button>
   </div>
-  <div id="reportSkipped" class="small"></div>
-</div>
-
-<!-- =================== SECCIÓN MANUAL =================== -->
-<div class="card">
-  <h3>🧪 Crear muestra manual</h3>
-
-  <label>Tipo de muestra</label>
-  <select id="tipoManual" onchange="actualizarUnidades()">
-    <option value="liquido">Líquido</option>
-    <option value="solido">Sólido</option>
-  </select>
-
-  <fieldset>
-    <legend>Seleccionar analitos</legend>
-    <div id="analitosSelect" style="display:flex;flex-wrap:wrap;gap:6px"></div>
-  </fieldset>
-
-  <label>Identificación</label>
-  <input id="identManual" placeholder="Ej: 203-R001-211025-08:55"/>
-
-  <label>Código</label>
-  <input id="codigoManual" placeholder="Ej: F-203-SM-211025-27"/>
-
-  <div id="analitosCampos"></div>
-
-  <div>
-    <button class="btn" onclick="generarManual()">Generar formato</button>
-    <button class="btn btn-danger" onclick="borrarManual()">Borrar</button>
-  </div>
-
-  <label>Salida manual</label>
-  <div id="salidaManual" class="out"></div>
-  <div>
-    <button class="btn" onclick="copiarManual()">📋 Copiar</button>
-    <button class="btn" onclick="whatsappManual()">💬 WhatsApp</button>
-  </div>
-</div>
-
-<!-- =================== TUTORIAL =================== -->
-<div class="card">
-  <h3>📘 Cómo usar</h3>
-  <div class="small">1️⃣ Copiá filas desde Excel (Ctrl+C) y pegá aquí. Evita las hojas QC-ICP y QC-AA.</div>
-  <div class="small">2️⃣ Presioná <strong>Procesar</strong> para generar los formatos listos.</div>
-  <div class="small">3️⃣ En la sección manual podés crear muestras nuevas seleccionando tipo y analitos.</div>
-  <div class="small">4️⃣ Escribí “N/D” si no hay dato; se mostrará tal cual.</div>
-  <div class="small">5️⃣ Copiá o envía por WhatsApp con un clic.</div>
-</div>
-
-<footer>Generador de Datos — Creado por William Campal © 2025</footer>
 </div>
 
 <script>
-/* =================== PLANTILLAS (exactas) =================== */
+/* =================== PLANTILLAS =================== */
 const plantillas={
+
+"203":[
+  { nombre:"Identificación", i:0 },
+  { nombre:"Código", i:1 },
+
+  { nombre:"B", i:2, u:"mg/L" },
+  { nombre:"Ca", i:3, u:"mg/L" },
+  { nombre:"K", i:4, u:"mg/L" },
+  { nombre:"Mg", i:5, u:"mg/L" },
+  { nombre:"Na", i:6, u:"mg/L" },
+
+  { nombre:"Humedad", i:7, u:"%" },
+  { nombre:"Fe", i:8, u:"mg/L" },
+  { nombre:"SO4", i:9, u:"mg/L" },
+  { nombre:"CO3", i:10, u:"mg/L" },
+  { nombre:"HCO3", i:11, u:"mg/L" },
+  { nombre:"OH", i:12, u:"mg/L" },
+
+  { nombre:"pH", i:13 },
+  { nombre:"densidad", i:14, u:"g/ml" },
+  { nombre:"Conductividad", i:15, u:"µS/cm" },
+  { nombre:"Dureza Total", i:16, u:"mg/L" },
+  { nombre:"Turbidez", i:17, u:"NTU" },
+  { nombre:"Si/ICP", i:18, u:"mg/L" },
+  { nombre:"OD", i:19, u:"%" },
+  { nombre:"Pureza", i:20, u:"%" }
+],
 
 "302":[
   { nombre:"Identificación", i:0 },
@@ -141,192 +117,128 @@ const plantillas={
   { nombre:"OD", i:24, u:"%" }
 ],
 
-"203":[
-  { nombre:"Identificación", i:0 },
-  { nombre:"Código", i:1 },
+"402-403":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"B",i:2,u:"mg/L"},
+ {nombre:"Ca",i:3,u:"mg/L"},
+ {nombre:"K",i:4,u:"mg/L"},
+ {nombre:"Li",i:5,u:"mg/L"},
+ {nombre:"Mg",i:6,u:"mg/L"},
+ {nombre:"Na",i:7,u:"mg/L"},
+ {nombre:"Fe",i:8,u:"mg/L"},
+ {nombre:"SO4",i:9,u:"mg/L"},
+ {nombre:"CO3",i:10,u:"mg/L"},
+ {nombre:"HCO3",i:11,u:"mg/L"},
+ {nombre:"pH",i:12},
+ {nombre:"Densidad",i:13,u:"g/ml"},
+ {nombre:"Conductividad",i:14,u:"µS/cm"}
+],
 
-  { nombre:"B", i:2, u:"ppm" },
-  { nombre:"Ca", i:3, u:"ppm" },
-  { nombre:"K", i:4, u:"ppm" },
-  { nombre:"Mg", i:5, u:"ppm" },
-  { nombre:"Na", i:6, u:"ppm" },
+"brine":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"Ca",i:2,u:"mg/L"},
+ {nombre:"K",i:3,u:"mg/L"},
+ {nombre:"Li",i:4,u:"mg/L"},
+ {nombre:"Mg",i:5,u:"mg/L"},
+ {nombre:"Na",i:6,u:"mg/L"},
+ {nombre:"SO4",i:7,u:"mg/L"},
+ {nombre:"CO3",i:8,u:"mg/L"},
+ {nombre:"HCO3",i:9,u:"mg/L"},
+ {nombre:"Cl",i:10,u:"mg/L"},
+ {nombre:"pH",i:11},
+ {nombre:"Densidad",i:12,u:"g/ml"}
+],
 
-  { nombre:"Humedad", i:7, u:"%" },
-  { nombre:"Fe", i:8, u:"ppm" },
-  { nombre:"SO4", i:9, u:"ppm" },
-  { nombre:"CO3", i:10, u:"ppm" },
-  { nombre:"HCO3", i:11, u:"ppm" },
-  { nombre:"OH", i:12, u:"ppm" },
+"li2co3":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"Li2CO3 %",i:2,u:"%"},
+ {nombre:"Na",i:3,u:"mg/kg"},
+ {nombre:"K",i:4,u:"mg/kg"},
+ {nombre:"Ca",i:5,u:"mg/kg"},
+ {nombre:"Mg",i:6,u:"mg/kg"},
+ {nombre:"Fe",i:7,u:"mg/kg"},
+ {nombre:"Ni",i:8,u:"mg/kg"},
+ {nombre:"Mn",i:9,u:"mg/kg"},
+ {nombre:"Cu",i:10,u:"mg/kg"},
+ {nombre:"Zn",i:11,u:"mg/kg"},
+ {nombre:"pH",i:12}
+],
 
-  { nombre:"pH", i:13 },
-  { nombre:"densidad", i:14, u:"g/ml" },
-  { nombre:"Conductividad", i:15, u:"µS/cm" },
-  { nombre:"Dureza Total", i:16, u:"ppm" },
-  { nombre:"Turbidez", i:17, u:"NTU" },
-  { nombre:"Si/ICP", i:18, u:"ppm" },
-  { nombre:"OD", i:19, u:"%" },
-  { nombre:"Pureza", i:20, u:"%" }
+"reporte_id":[
+ {nombre:"Identificación",i:0},
+ {nombre:"Código",i:1},
+ {nombre:"Ensayo",i:2},
+ {nombre:"Resultado",i:3},
+ {nombre:"Unidad",i:4},
+ {nombre:"Observaciones",i:5}
 ]
 };
 
-/* =================== UTILIDADES =================== */
-function clean(v){ return v===undefined||v===null? "": v.toString().trim(); }
-
-// intenta parsear numero para decidir heuristicas (no cambia formato original)
-function parseNumForCheck(s){
-  if(!s && s!==0) return NaN;
-  const t = s.toString().trim().replace(/\./g,'').replace(/,/g,'.'); // permite "1.234,56" y "1234.56"
-  const n = Number(t);
-  return isNaN(n)? NaN : n;
+/* ==== Conversión correcta punto decimal ==== */
+function normalize(value){
+ if(!value)return"";
+ return value.replace(",",".");
 }
 
-/* =================== PROCESAR DATOS PEGADOS =================== */
+/* =================== PROCESAR PEGADO =================== */
 function procesarExcel(){
-  const raw = document.getElementById("excelData").value || "";
-  if(!raw.trim()){ alert("Pegá filas desde Excel."); return; }
+ const raw=document.getElementById("excelData").value.trim();
+ if(!raw){alert("Pegá filas desde Excel");return;}
 
-  const rows = raw.replace(/\r/g,"").split(/\n/).filter(r=>r.trim()!="");
-  const parsed = rows.map(l=> l.split(/\t|;/).map(x=>x.trim()) );
-  const plantilla = plantillas[ document.getElementById("sheetType").value ];
+ const rows=raw.split(/\n/);
+ const tipo=document.getElementById("sheetType").value;
+ const plantilla=plantillas[tipo];
+ let salida="";
 
-  let salida = "";
-  parsed.forEach(r=>{
-    if(r.length < 2) return;
-    const id = clean(r[0]);
-    const cod = clean(r[1]);
-    if(!id && !cod) return;
+ rows.forEach(line=>{
+   let cols=line.split(/\t|;/);
+   if(cols.length<2)return;
 
-    // Construyo mapa inicial según plantilla (sin aplicar heurísticas)
-    const mapa = {};
-    plantilla.forEach((c,j)=>{
-      if(j<2) { mapa[c.nombre] = clean(r[c.i]); return; }
-      mapa[c.nombre] = clean(r[c.i]);
-    });
+   let mapa={};
+   plantilla.forEach(obj=>{
+     mapa[obj.nombre]= normalize(cols[obj.i]||"");
+   });
 
-    // ---------- HEURÍSTICA pH <-> densidad ----------
-    // Si plantilla contiene pH y densidad, y pH vacío pero densidad no vacío,
-    // y el valor de densidad parece estar en rango pH (0..14) --> considerarlo pH.
-    if( ("pH" in mapa) && ("densidad" in mapa) ){
-      const vPH = mapa["pH"];
-      const vDens = mapa["densidad"];
-      const nPH = parseNumForCheck(vPH);
-      const nDens = parseNumForCheck(vDens);
+   /* ✅ Corrección automática del error pH ↔ densidad en hoja 203 */
+   if(tipo==="203"){
+     let pH = parseFloat(mapa["pH"]);
+     let dens = parseFloat(mapa["densidad"]);
 
-      // caso típico: pH vacío y densidad contiene un número que cae en 0..14 -> es pH
-      if( (vPH === "" || isNaN(nPH)) && (vDens !== "" && !isNaN(nDens)) ){
-        if( nDens >= 0 && nDens <= 14 ){
-          // reasignar: densidad => pH
-          mapa["pH"] = mapa["densidad"];
-          mapa["densidad"] = "";
-        } else {
-          // si densidad es un número absurdo (>5) y pH vacío y existe otro candidato en fila, busco candidato pH en últimas columnas
-          if(nDens > 5 && (vPH==="" || isNaN(nPH)) ){
-            // busco en las últimas 8 columnas un candidato que esté entre 0 y 14
-            let foundPH = "";
-            for(let k = Math.max(0, r.length-8); k < r.length; k++){
-              const candidate = clean(r[k]);
-              const nc = parseNumForCheck(candidate);
-              if(candidate!=="" && !isNaN(nc) && nc >= 0 && nc <= 14){
-                foundPH = candidate;
-                break;
-              }
-            }
-            if(foundPH){
-              mapa["pH"] = foundPH;
-              // si densidad parece >5 y era en realidad pH, clear densidad
-              if(nDens > 5) mapa["densidad"] = "";
-            }
-          }
-        }
-      }
-    }
+     if((isNaN(pH) || mapa["pH"]==="") && !isNaN(dens) && dens>=0 && dens<=14){
+       mapa["pH"] = mapa["densidad"];
+       mapa["densidad"] = "";
+     }
+   }
 
-    // ---------- Si pH sigue vacío, intento buscarlo en las últimas columnas ----------
-    if( plantilla.some(c=>c.nombre==="pH") && (!mapa["pH"] || mapa["pH"]==="") ){
-      let foundPH = "";
-      for(let k = Math.max(0, r.length-8); k < r.length; k++){
-        const candidate = clean(r[k]);
-        const nc = parseNumForCheck(candidate);
-        if(candidate!=="" && !isNaN(nc) && nc >= 0 && nc <= 14){
-          foundPH = candidate;
-          break;
-        }
-      }
-      if(foundPH) mapa["pH"] = foundPH;
-    }
+   salida+=`🔹 Identificación: ${mapa["Identificación"]||"N/D"}\n🔹 Código: ${mapa["Código"]||"N/D"}\n`;
 
-    // ---------- Construyo la salida en el orden de plantilla, pero oculto valores vacíos ----------
-    salida += `🔹 Identificación: ${id || "N/D"}\n🔹 Código: ${cod || "N/D"}\n`;
-    plantilla.forEach((c,j)=>{
-      if(j<2) return;
-      const val = mapa[c.nombre];
-      if(!val || val.toString().trim()==="") return; // ocultar vacío
-      salida += `• ${c.nombre}: ${val}${c.u ? " "+c.u : ""}\n`;
-    });
-    salida += "-------------------------\n";
-  });
+   plantilla.forEach((obj,j)=>{
+     if(j<2)return;
+     let v = mapa[obj.nombre];
+     if(!v)return;
+     salida+=`• ${obj.nombre}: ${v}${obj.u?(" "+obj.u):""}\n`;
+   });
 
-  document.getElementById("salida").textContent = salida || "No hay datos válidos.";
-}
-
-/* =================== FUNCIONES UTILITARIAS =================== */
-async function pegarDesdePortapapeles(){
-  try{ document.getElementById("excelData").value = await navigator.clipboard.readText(); }
-  catch(e){ alert("No se pudo acceder al portapapeles. Pegá manualmente."); }
-}
-function copiarSalida(){
-  const t = document.getElementById("salida").textContent || "";
-  if(!t.trim()) return alert("Nada para copiar.");
-  navigator.clipboard.writeText(t).then(()=>alert("Copiado ✅")).catch(()=>alert("Error al copiar."));
-}
-function abrirWhatsappPrimerRegistro(){
-  const t = document.getElementById("salida").textContent.trim();
-  if(!t) return alert("Nada para enviar.");
-  const f = t.split("-------------------------")[0];
-  window.open("https://web.whatsapp.com/send?text="+encodeURIComponent(f),"_blank");
-}
-function limpiar(){
-  document.getElementById("excelData").value = "";
-  document.getElementById("salida").textContent = "";
-}
-
-/* =================== SECCIÓN MANUAL =================== */
-const analitos=["B","Ca","K","Li","Mg","Na","Fe","SO4","CO3","HCO3","Si","Cl","Ni","Mn","Cu","Zn","pH","Densidad","Conductividad","Turbidez","Li2CO3 %","Ensayo","Resultado","Unidad","Observaciones"];
-function crearCheckbox(){
- const c=document.getElementById("analitosSelect");c.innerHTML="";
- analitos.forEach(a=>{c.innerHTML+=`<label style="margin-right:8px"><input type="checkbox" value="${a}" onchange="mostrarCampos()"> ${a}</label>`});
-}
-function mostrarCampos(){
- const sel=[...document.querySelectorAll("#analitosSelect input:checked")].map(i=>i.value);
- const cont=document.getElementById("analitosCampos");cont.innerHTML="";
- sel.forEach(a=>cont.innerHTML+=`<label>${a}</label><input id="a_${a.replace(/\W+/g,'')}" placeholder="${a}">`);
-}
-function actualizarUnidades(){ /* placeholder si necesitás lógica al cambiar líquido/ Sólido */ }
-function generarManual(){
- const tipo=document.getElementById("tipoManual").value;
- const id=document.getElementById("identManual").value.trim();
- const cod=document.getElementById("codigoManual").value.trim();
- if(!id||!cod) return alert("Completá Identificación y Código.");
- const sel=[...document.querySelectorAll("#analitosSelect input:checked")].map(i=>i.value);
- let out=`🔹 Identificación: ${id}\n🔹 Código: ${cod}\n`;
- sel.forEach(a=>{
-   const v=document.getElementById("a_"+a.replace(/\W+/g,'')).value.trim();
-   if(!v&&v.toUpperCase()!="N/D") return;
-   let u="";
-   if(["B","Ca","K","Li","Mg","Na","Fe","SO4","CO3","HCO3","Si","Cl","Ni","Mn","Cu","Zn"].includes(a)) u = tipo=="solido"?"mg/kg":"mg/L";
-   else if(a=="Densidad") u="g/ml";
-   else if(a=="Conductividad") u="µS/cm";
-   else if(a=="Turbidez") u="NTU";
-   out+=`• ${a}: ${v}${u?" "+u:""}\n`;
+   salida+="-------------------------\n";
  });
- out+="-------------------------";
- document.getElementById("salidaManual").textContent=out;
- document.getElementById("salida").textContent=out;
+
+ document.getElementById("salida").textContent=salida;
 }
-function copiarManual(){const t=document.getElementById("salidaManual").textContent;if(!t.trim())return;navigator.clipboard.writeText(t).then(()=>alert("Copiado ✅"))}
-function whatsappManual(){const t=document.getElementById("salidaManual").textContent.trim();if(!t)return;window.open("https://web.whatsapp.com/send?text="+encodeURIComponent(t),"_blank")}
-function borrarManual(){document.getElementById("analitosCampos").innerHTML="";document.getElementById("identManual").value="";document.getElementById("codigoManual").value="";document.querySelectorAll("#analitosSelect input").forEach(c=>c.checked=false);document.getElementById("salidaManual").textContent="";}
-crearCheckbox();
+
+/* UTILIDADES */
+async function pegarDesdePortapapeles(){document.getElementById("excelData").value=await navigator.clipboard.readText();}
+function copiarSalida(){navigator.clipboard.writeText(document.getElementById("salida").textContent);}
+function abrirWhatsappPrimerRegistro(){
+ const t=document.getElementById("salida").textContent.split("-------------------------")[0];
+ window.open("https://web.whatsapp.com/send?text="+encodeURIComponent(t),"_blank");
+}
+function limpiar(){document.getElementById("excelData").value="";document.getElementById("salida").textContent="";}
 </script>
+
+</div>
+<footer>Generador de Datos — Creado por William Campal 09/11/2025 © 2025</footer>
 </body>
 </html>
